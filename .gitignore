@@ -1,0 +1,18 @@
+# *
+#
+# !MultithreadedArraySum.java
+# !MultithreadedArraySum.py
+# !MultithreadedArraySum.lua
+# !MultithreadedArraySum.f90
+#
+# !Rust/
+# !Rust/**
+# !Rust/.*
+#
+# !Python/
+# !Python/**
+# !Python/.*
+#
+# !Zig/
+# !Zig/**
+# !Zig/.*
