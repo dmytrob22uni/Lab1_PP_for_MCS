@@ -2,7 +2,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 const SliceArg = struct {
-    data: []const i64,  // read only in thread
+    data: []const i64,  // read only in thread; passed by value, 'cause slice is just a pointer and slice len - 8 + 8 = 16 bytes of data
     out: *i128,  // to pass reference of the 'out' in thread, not its copy
 };
 
