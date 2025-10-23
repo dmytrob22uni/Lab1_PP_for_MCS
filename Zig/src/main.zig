@@ -39,7 +39,7 @@ fn parallel_sum(data: []const i64, n_slices: usize) !i128 {  // ! means possible
         const is_last = (spawned == n_slices - 1);
         const len: usize = if (is_last) N - start else base_chunk;
 
-        args[spawned] = SliceArg{
+        args[spawned] = SliceArg {
             .data = data[start .. start + len],
             .out = &results[spawned],
         };
