@@ -1,8 +1,9 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 const SliceArg = struct {
-    data: []const i64,
-    out: *i128,
+    data: []const i64,  // read only in thread
+    out: *i128,  // to pass reference of the 'out' in thread, not its copy
 };
 
 fn slice_sum(arg: *SliceArg) void {
@@ -13,11 +14,11 @@ fn slice_sum(arg: *SliceArg) void {
     arg.out.* = s;
 }
 
-fn parallel_sum(data: []const i64, n_slices: usize) !i128 {
+fn parallel_sum(data: []const i64, n_slices: usize) !i128 {  // ! means possible error in func scope
     const allocator = std.heap.page_allocator;
     const N = data.len;
 
-    if (n_slices == 0) return error.InvalidSliceCount;
+    if (n_slices == 0) return 0;
 
     // allocate per-slice results
     var results = try allocator.alloc(i128, n_slices);
@@ -31,10 +32,10 @@ fn parallel_sum(data: []const i64, n_slices: usize) !i128 {
     var threads = try allocator.alloc(std.Thread, n_slices);
     defer allocator.free(threads);
 
-    const base_chunk = if (n_slices > 0) N / n_slices else 0;
+    const base_chunk = N / n_slices;
     var start: usize = 0;
     var spawned: usize = 0;
-    while (spawned < n_slices) : (spawned += 1) {
+    while (spawned < n_slices) : (spawned += 1) {  // (.. < ..) - before each cycle; : ( .. + ..) - after each cycle and 'continue'
         const is_last = (spawned == n_slices - 1);
         const len: usize = if (is_last) N - start else base_chunk;
 
@@ -44,17 +45,17 @@ fn parallel_sum(data: []const i64, n_slices: usize) !i128 {
         };
 
         threads[spawned] = try std.Thread.spawn(
-            .{},
-            slice_sum,
-            .{ &args[spawned]
-        });
+            .{},  // default SpawnConfig
+            slice_sum,  // function to execute
+            .{ &args[spawned] }  // args for function (reference as required by the function)
+        );
 
         start += len;
     }
 
     // Join threads and sum the sums results
     var total: i128 = 0;
-    for (threads[0..spawned], 0..) |t, i| {
+    for (threads, 0..) |t, i| {
         t.join();
         total += results[i];
     }
@@ -66,22 +67,25 @@ pub fn main() !void {
     const allocator = std.heap.page_allocator;
 
     const N: usize = 2_000_000;
-    const cpu_count = 16;  // Cause it works for my arch
+    // TODO: const cpu_count = builtin.cpu.features.ints;  // Cause it works for my architecture
+    const cpu_count = 16;
 
-    const n_slices: usize = cpu_count; std.debug.print("Using {d}\n threads / slices", .{ n_slices });
+    const n_slices: usize = cpu_count;
+    std.debug.print("Using {d} threads / slices\n", .{ n_slices });
 
     const data = try allocator.alloc(i64, N);
-    defer allocator.free(data);
+    defer allocator.free(data);  // when scope exits (deref) - free the allocated memory (.free())
 
     // fill with i % 1000
-    for (data, 0..) |*slot, i| {
+    for (data, 0..) |*slot, i| {  // pointer to the array and its index
+        // dereference the pointer to access value (.* - access member 'dereferenced pointer value')
+        // make it match i64 type of the i % 1000 result
         slot.* = @intCast(i % 1000);
     }
 
-    // call the refactored function
     const total = try parallel_sum(data, n_slices);
 
-    std.debug.print("Total sum is {d}\n", .{ total });
+    std.debug.print("Total sum is {d}\n", .{total});  // .{} - anonymous struct
 
     // regular (sequential) total
     var total_check: i128 = 0;
