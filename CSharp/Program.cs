@@ -45,10 +45,10 @@ static BigInteger ParallelSum(long[] data, int nSlices) {
     {
         int add = (i < remainder) ? 1 : 0;
         int chunkLen = baseChunk + add;
-        int sliceStart = start;  // capture locals for closure
+        int sliceStart = start;  // capture locals for closure, 'cause loop variables in for loops are mutable and reused across iterations
         int sliceEnd = start + chunkLen;
 
-        int index = i;  // capture locals for closure
+        int index = i;  // capture locals for closure, 'cause loop variables in for loops are mutable and reused across iterations
 
         threads[i] = new Thread(() => {
             BigInteger localSum = BigInteger.Zero;
