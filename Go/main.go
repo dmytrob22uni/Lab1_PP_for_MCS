@@ -47,16 +47,9 @@ func parallelSum(data []int64, nSlices int) *big.Int {
 		start = end
 	}
 
-	// run in a separate goroutine to avoid deadlock, because wg.Wait() blocks untill workers finish, but workers can't fully finish their ... <- ... when main is blocked by wg.Wait
-	// our goroutines need free of waiting main to be ready to receive data from the channels
-	// in some cases wg.Wait may happen before some (one or more) goroutines reaches its ... <- ... data passing through the channel state, which expects reading of itself
-	go func() {
-		wg.Wait()  // wait 'till all the goroutines finish
-		// close the channel with results, so we can continue on main thread summing up those partial sums, otherwise loop below gonna wait forever
-		// in other words close() make the channel finilized and ensuring no more data gonna pass through it, so the receiver know exactly when to stop reading
-		// otherwise it is gonna wait forever and be deadlocked
-		close(results)
-	}()  // () at the end make the lambda start immediately, and with 'go' it starts in goroutine
+	wg.Wait()  // wait 'till all the goroutines finish
+
+	close(results)  // close the channel with results
 
 	totalSum := big.NewInt(0)
 	for v := range results {
