@@ -5,6 +5,7 @@ import (
 	"math/big"
 	"runtime"
 	"sync"
+	"time"
 )
 
 // parallelSum calculaes sums of the elements in `data` using nSlices of goroutines.
@@ -76,13 +77,17 @@ func main() {
 	nSlices := nThreads
 	fmt.Printf("Using %d threads / slices\n", nSlices)
 
+	t0 := time.Now()
 	totalSum := parallelSum(data, nSlices)
-	fmt.Printf("Total sum is %d\n", totalSum)
+	fmt.Printf("Time elapsed is %dms\n", time.Duration(time.Since(t0).Milliseconds()))
+	fmt.Printf("Total sum is %d\n\n", totalSum)
 
 	totalSumCheck := big.NewInt(0)
+	t1 := time.Now()
 	for _, v := range data {
 		totalSumCheck.Add(totalSumCheck, big.NewInt(v))
 	}
+	fmt.Printf("Time elapsed is %dms\n", time.Duration(time.Since(t1).Milliseconds()))
 	fmt.Printf("Total sum check is %s\n", totalSumCheck.String())
 
 	if totalSum.Cmp(totalSumCheck) != 0 {
