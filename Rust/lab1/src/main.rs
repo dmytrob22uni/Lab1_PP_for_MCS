@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use std::thread;
+use std::time::Instant;
 
 // data is wrapped in Arc, so threads can share it without making copies
 // return i128 - safe bet in case of large sums
@@ -66,12 +67,18 @@ fn main() {
     let n_slices = n_threads;
     println!("Using {n_slices} threads / slices");
 
+    let start_parallel = Instant::now();
     let total_sum = parallel_sum(Arc::clone(&data), n_slices);
+    let duration_parallel = start_parallel.elapsed().as_millis();
     println!("Total sum is {total_sum}");
+    println!("Elapsed time is {duration_parallel} ms");
 
+    let start_single = Instant::now();
     // dereference each value from iter() and apply i128 conversion
     let total_sum_check: i128 = data.iter().map(|&x| x as i128).sum();
+    let duration_single = start_single.elapsed().as_millis();
     println!("Total sum check is {total_sum_check}");
+    println!("Elapsed time is {duration_single} ms");
 
     assert_eq!(total_sum, total_sum_check);
 }

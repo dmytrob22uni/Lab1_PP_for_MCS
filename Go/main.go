@@ -72,7 +72,8 @@ func main() {
 
 	t0 := time.Now()
 	totalSum := parallelSum(data, nSlices)
-	fmt.Printf("Time elapsed is %dms\n", time.Duration(time.Since(t0).Milliseconds()))
+	d0 := time.Duration(time.Since(t0).Milliseconds())
+	fmt.Printf("Time elapsed is %dms\n", d0)
 	fmt.Printf("Total sum is %d\n\n", totalSum)
 
 	totalSumCheck := big.NewInt(0)
@@ -80,7 +81,8 @@ func main() {
 	for _, v := range data {
 		totalSumCheck.Add(totalSumCheck, big.NewInt(v))
 	}
-	fmt.Printf("Time elapsed is %dms\n", time.Duration(time.Since(t1).Milliseconds()))
+	d1 := time.Duration(time.Since(t1).Milliseconds())
+	fmt.Printf("Time elapsed is %dms\n", d1)
 	fmt.Printf("Total sum check is %s\n", totalSumCheck.String())
 
 	if totalSum.Cmp(totalSumCheck) != 0 {

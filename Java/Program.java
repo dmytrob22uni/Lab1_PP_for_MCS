@@ -1,4 +1,6 @@
 import java.math.BigInteger;
+import java.time.Instant;
+import java.time.Duration;
 
 public class Program {
     public static BigInteger parallelSum(long[] data, int nSlices) {
@@ -53,7 +55,7 @@ public class Program {
     }
 
     public static void main(String[] args) {
-        int nItems = 2_000_000;
+        int nItems = 10_000_000;
         long[] data = new long[nItems];
         for (int i = 0; i < nItems; i++) {
             data[i] = i % 1000;
@@ -63,14 +65,28 @@ public class Program {
         int nSlices = nThreads;
         System.out.println(String.format("Using %d threads / slices", nSlices));
 
+        long startParallel = System.nanoTime();
+        // Instant startParallel = Instant.now();
         BigInteger totalSum = parallelSum(data, nSlices);
+        long endParallel = System.nanoTime();
+        // Instant endParallel = Instant.now();
+        long durationParallel = (endParallel - startParallel) / 1_000_000;
+        // long durationParallel = Duration.between(startParallel, endParallel).toMillis();
         System.out.println(String.format("Total sum is %d", totalSum));
+        System.out.println(String.format("Elapsed time is %d ms", durationParallel));
 
         BigInteger totalSumCheck = BigInteger.ZERO;
+        long startSingle = System.nanoTime();
+        // Instant startSingle = Instant.now();
         for (long v : data) {
             totalSumCheck = totalSumCheck.add(BigInteger.valueOf(v));
         }
+        long endSingle = System.nanoTime();
+        // Instant endSingle = Instant.now();
+        long durationSingle = (endSingle - startSingle) / 1_000_000;
+        // long durationSingle = Duration.between(startSingle, endSingle).toMillis();
         System.out.println(String.format("Total sum check is %d", totalSumCheck));
+        System.out.println(String.format("Elapsed time is %d ms", durationSingle));
 
         if (!totalSum.equals(totalSumCheck)) {
             throw new AssertionError("Sums are not equal!");

@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 
 int nItems = 2_000_000;
 long[] data = new long[nItems];
@@ -11,15 +12,21 @@ int nThreads = Environment.ProcessorCount;
 int nSlices = nThreads;
 Console.WriteLine($"Using {nSlices} threads / slices");
 
+Stopwatch stopwatch = Stopwatch.StartNew();
 BigInteger totalSum = ParallelSum(data, nSlices);
+stopwatch.Stop();
 Console.WriteLine($"Total sum is {totalSum}");
+Console.WriteLine($"Elapsed time is {stopwatch.ElapsedMilliseconds} ms");
 
+stopwatch.Restart();
 BigInteger totalSumCheck = BigInteger.Zero;
 for (int i = 0; i < data.Length; i++)
 {
     totalSumCheck += data[i];
 }
+stopwatch.Stop();
 Console.WriteLine($"Total sum check is {totalSumCheck}");
+Console.WriteLine($"Elapsed time is {stopwatch.ElapsedMilliseconds} ms");
 
 if (totalSum != totalSumCheck)
 {

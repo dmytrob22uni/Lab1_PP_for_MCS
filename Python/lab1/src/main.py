@@ -1,5 +1,6 @@
 import threading
 import os
+import time
 from typing import List
 
 
@@ -51,11 +52,19 @@ if __name__ == "__main__":
     n_slices = n_threads
     print("Using ", n_slices, " threads / slices")
 
+    start_parallel = time.perf_counter()
     total = parallel_sum(data, n_slices)
+    end_parallel = time.perf_counter()
+    duration_parallel = (end_parallel - start_parallel) * 1000
     print("Total sum is ", total)
+    print(f"Elapsed time is {duration_parallel:.0f} ms")
 
+    start_single = time.perf_counter()
     total_check = sum(data)
+    end_single = time.perf_counter()
+    duration_single = (end_single - start_single) * 1000
     print("Total sum check is ", total_check)
+    print(f"Elapsed time is {duration_single:.0f} ms")
 
     assert total == total_check
 

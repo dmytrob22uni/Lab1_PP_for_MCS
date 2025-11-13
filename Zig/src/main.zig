@@ -83,15 +83,22 @@ pub fn main() !void {
         slot.* = @intCast(i % 1000);
     }
 
+    const start_parallel = std.time.milliTimestamp();
     const total = try parallel_sum(data, n_slices);
+    const end_parallel = std.time.milliTimestamp();
+    const duration_parallel = end_parallel - start_parallel;
 
     std.debug.print("Total sum is {d}\n", .{total});  // .{} - anonymous struct
+    std.debug.print("Elapesed time is {d} ms\n", .{duration_parallel});
 
     // regular (sequential) total
     var total_check: i128 = 0;
+    const start_single = std.time.milliTimestamp();
     for (data) |v| {
         total_check += @as(i128, v);
     }
+    const end_single = std.time.milliTimestamp();
+    const duration_single = end_single - start_single;
 
     std.debug.assert(total == total_check);
     if (total != total_check) {
@@ -99,5 +106,6 @@ pub fn main() !void {
     }
 
     std.debug.print("Total sum check is {d}\n", .{ total_check });
+    std.debug.print("Elapesed time is {d} ms\n", .{duration_single});
 }
 
